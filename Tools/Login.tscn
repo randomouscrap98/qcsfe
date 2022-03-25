@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=2]
 
-[ext_resource path="res://Login.gd" type="Script" id=1]
-[ext_resource path="res://ErrorBox.tscn" type="PackedScene" id=2]
+[ext_resource path="res://Tools/Login.gd" type="Script" id=1]
+[ext_resource path="res://Fragments/ErrorBox.tscn" type="PackedScene" id=2]
 
 [sub_resource type="StyleBoxFlat" id=1]
 bg_color = Color( 0.392157, 0.329412, 0.54902, 1 )
