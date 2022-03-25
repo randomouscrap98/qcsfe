@@ -10,7 +10,8 @@ config_version=4
 
 [application]
 
-config/name="Temp"
+config/name="QCS"
+config/description="A weird frontend for the QCS website"
 run/main_scene="res://Main.tscn"
 config/icon="res://icon.png"
 
@@ -23,6 +24,14 @@ OSUtilities="*res://Utilities/OSUtilities.gd"
 
 window/size/width=500
 window/size/height=500
+
+[global]
+
+logging=false
+
+[logging]
+
+file_logging/enable_file_logging=true
 
 [physics]
 

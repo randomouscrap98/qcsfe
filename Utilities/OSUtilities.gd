@@ -1,10 +1,5 @@
 extends Node
 
-
-# Declare member variables here. Examples:
-# var a = 2
-# var b = "text"
-
 const PSNOTIF = "[void] [System.Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms'); $objNotifyIcon=New-Object System.Windows.Forms.NotifyIcon; $objNotifyIcon.BalloonTipText='%s'; $objNotifyIcon.Icon=[system.drawing.systemicons]::%s; $objNotifyIcon.BalloonTipTitle='%s'; $objNotifyIcon.BalloonTipIcon='None'; $objNotifyIcon.Visible=$True; $objNotifyIcon.ShowBalloonTip(5000);"
 
 
@@ -22,8 +17,8 @@ func SendNotification(title: String, text: String):
 			var cleanTitle  = CleanInput(title)
 			var cleanText = CleanInput(text)
 			var output = []
-			var result = OS.execute("PowerShell.exe", ["-Command", PSNOTIF % [cleanText, "Information", cleanTitle]], true, output) #  -windowstyle hidden {. .\notification.ps1 }")
-			print("Result: %d", result)
+			var result = OS.execute("powershell.exe", ["-windowstyle", "hidden", "-Command", PSNOTIF % [cleanText, "Information", cleanTitle]], true, output) #  -windowstyle hidden {. .\notification.ps1 }")
+			print("Result: %d" % result)
 			print(output)
 		_:
 			print("NO NOTIFICATION HANDLER FOR " + osname)

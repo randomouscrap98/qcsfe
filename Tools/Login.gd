@@ -14,32 +14,43 @@ func _ready():
 	pass # Replace with function body.
 
 func SetError(text: String):
+	print("Login seterror: %s" % text)
 	errorBox.SetError(text)
 	errorBox.show()
 
 func ClearError():
 	errorBox.SetError("")
 	errorBox.hide()
+
+func GetSelectedUrl():
+	return apiSelect.get_item_text(apiSelect.get_selected_id())
+
+func DisableControls():
+	loginButton.disabled = true
+	apiSelect.disabled = true
+
+func EnableControls():
+	loginButton.disabled = false
+	apiSelect.disabled = false
 	
 func _login_pressed():
-	loginButton.disabled = true
+	DisableControls()
 	ClearError()
-	var apiUrl = apiSelect.get_item_text(apiSelect.get_selected_id())
+	var apiUrl = GetSelectedUrl()
 	print("URL: %s" % apiUrl)
 	var data = { "username": $VBoxContainer/UsernameEdit.text, "password": $VBoxContainer/PasswordEdit.text }
 	var error = request.request(apiUrl + "/user/login", ApiUtilities.GetStandardHeaders(), true,HTTPClient.METHOD_POST, JSON.print(data))
 	if error != OK:
-		print("SOMETHING AWFUL HAPPENED? %s" % error)
-		loginButton.disabled = false
+		SetError("Unknown error from request: %s" % error)
+		EnableControls()
 	
-func _request_complete(result, response_code, headers, body):
-	loginButton.disabled = false
+func _request_complete(_result, response_code, _headers, body):
+	EnableControls()
 	var bodstring = body.get_string_from_utf8()
 	if response_code != 200:
 		SetError("ERROR %d: %s" % [response_code, bodstring])
 	else:
-		print("Response code: %d, body: %s" % [response_code, bodstring])
-		OSUtilities.SendNotification("You logged in", bodstring)
+		emit_signal("login_success", GetSelectedUrl(), bodstring)
 
 	
 # Called every frame. 'delta' is the elapsed time since the previous frame.
