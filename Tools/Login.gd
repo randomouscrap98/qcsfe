@@ -39,6 +39,7 @@ func _request_complete(result, response_code, headers, body):
 		SetError("ERROR %d: %s" % [response_code, bodstring])
 	else:
 		print("Response code: %d, body: %s" % [response_code, bodstring])
+		OSUtilities.SendNotification("You logged in", bodstring)
 
 	
 # Called every frame. 'delta' is the elapsed time since the previous frame.
