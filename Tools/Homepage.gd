@@ -3,9 +3,6 @@ extends VBoxContainer
 
 onready var paneToggle = $Header/HBoxContainer/PaneToggle
 onready var rightPane = $MainSplit/RightPane
-# Declare member variables here. Examples:
-# var a = 2
-# var b = "text"
 
 
 # Called when the node enters the scene tree for the first time.
