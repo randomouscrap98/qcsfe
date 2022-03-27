@@ -12,7 +12,7 @@ func _ready():
 	toggleExtra.connect("toggled", self, "_toggle_extra")
 	pass # Replace with function body.
 
-func _toggle_extra(state):
+func _toggle_extra(_state):
 	if toggleExtra.is_pressed():
 		extraPanel.show()
 	else:

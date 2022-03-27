@@ -1,0 +1,57 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://Tools/Homepage.gd" type="Script" id=1]
+[ext_resource path="res://Tools/PageChat.tscn" type="PackedScene" id=2]
+
+[node name="Homepage" type="VBoxContainer"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+custom_constants/separation = 0
+script = ExtResource( 1 )
+
+[node name="Header" type="PanelContainer" parent="."]
+margin_right = 500.0
+margin_bottom = 38.0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Header"]
+margin_left = 7.0
+margin_top = 7.0
+margin_right = 493.0
+margin_bottom = 31.0
+
+[node name="Controls" type="HBoxContainer" parent="Header/HBoxContainer"]
+margin_right = 458.0
+margin_bottom = 24.0
+size_flags_horizontal = 3
+
+[node name="PaneToggle" type="CheckBox" parent="Header/HBoxContainer"]
+margin_left = 462.0
+margin_right = 486.0
+margin_bottom = 24.0
+
+[node name="MainSplit" type="HSplitContainer" parent="."]
+margin_top = 38.0
+margin_right = 500.0
+margin_bottom = 500.0
+size_flags_vertical = 3
+
+[node name="LeftPane" type="GridContainer" parent="MainSplit"]
+margin_right = 500.0
+margin_bottom = 462.0
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 2.5
+
+[node name="PageChat" parent="MainSplit/LeftPane" instance=ExtResource( 2 )]
+anchor_right = 0.0
+anchor_bottom = 0.0
+margin_right = 500.0
+margin_bottom = 462.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="RightPane" type="VBoxContainer" parent="MainSplit"]
+visible = false
+margin_left = 363.0
+margin_right = 500.0
+margin_bottom = 466.0
+size_flags_horizontal = 3
