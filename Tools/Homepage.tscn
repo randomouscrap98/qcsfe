@@ -32,6 +32,7 @@ size_flags_horizontal = 3
 margin_left = 462.0
 margin_right = 486.0
 margin_bottom = 24.0
+pressed = true
 
 [node name="MainSplit" type="HSplitContainer" parent="."]
 margin_top = 38.0
@@ -42,6 +43,7 @@ custom_constants/autohide = 0
 custom_constants/separation = 9
 
 [node name="LeftPane" type="PanelContainer" parent="MainSplit"]
+visible = false
 margin_right = 500.0
 margin_bottom = 462.0
 size_flags_horizontal = 3
@@ -62,15 +64,13 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 
 [node name="RightPane" type="MarginContainer" parent="MainSplit"]
-visible = false
-margin_left = 362.0
 margin_right = 500.0
 margin_bottom = 462.0
 size_flags_horizontal = 3
 custom_constants/margin_right = 4
 
 [node name="ContentDiscovery" type="TabContainer" parent="MainSplit/RightPane"]
-margin_right = 134.0
+margin_right = 496.0
 margin_bottom = 462.0
 custom_constants/top_margin = 0
 tab_align = 0

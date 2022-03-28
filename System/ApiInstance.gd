@@ -26,9 +26,9 @@ func GetStandardHeaders():
 # Actual stateful functions (ugh)
 func ReInitialize(url : String, loginData):
 	apiUrl = url
-	var apiUrl = url + "/user/login"
-	print("Login (ReInitialize) requesting URL: %s" % apiUrl)
-	QueueRequestPost(apiUrl, GetStandardHeaders(), JSON.print(loginData), "Login")
+	var loginUrl  = url + "/user/login"
+	print("Login (ReInitialize) requesting URL: %s" % loginUrl)
+	QueueRequestPost(loginUrl, GetStandardHeaders(), JSON.print(loginData), "Login")
 
 func login_success_func(body, _data):
 	print("Login success; user token: %s" % body)
@@ -58,7 +58,7 @@ func EmitError(what : String, message : String, signals):
 		emit_signal(s, newMessage)
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta):
+func _process(_delta):
 	if queuedRequests.size() > 0 && currentRequest == null:
 		currentRequest = queuedRequests.pop_front()
 		# This DOES NOT block for the entirety of the request!
