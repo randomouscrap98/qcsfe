@@ -17,14 +17,22 @@ var isOpen : bool = false
 var looping : bool = false
 var reconnectTimer = 0
 
-
+# Just informational signals, use for state tracking for like a connection identifier.
+# Also can check "isOpen", should match the state from the signals...
 signal ws_connected()
 signal ws_disconnected()
+
+# All technically error signals, these errors indicate that the system has fully shutdown
+# and will not open back up until someone calls connect (no more reconnect looping). Note
+# that the individual signals such as "badtoken" and "unexpected" are there just in case;
+# an error such as this ALWAYS emits the "ws_fulldisconnect" though.
+signal ws_fulldisconnect(message)
 signal ws_badtoken(message)
-signal ws_unhandled(message)
+signal ws_unexpected(message)
+
 signal ws_request(response)
 signal ws_live(response)
-signal ws_userlist(response)
+signal ws_userlist(response, full)
 
 
 # Called when the node enters the scene tree for the first time.
@@ -57,14 +65,36 @@ func _ws_closed(_clean = false):
 		reconnectTimer = RECONNECTINTERVAL
 
 func _ws_open(_proto = ""):
-	print("Websocket opened to %s! System is fully functional" % wsUrl)
-	isOpen = true
-	emit_signal("ws_connected")
+	print("Websocket opened to %s! System is fully functional, but waiting for lastid message" % wsUrl)
 
 func _ws_message():
-	pass
+	var message = client.get_peer(1).get_packet().get_string_from_utf8()
+	var response = JSON.parse(message).result
+	
+	if response.type == "live":
+		lastId = response.data.lastId
+		emit_signal("ws_live", response)
+	elif response.type == "lastId":
+		# Weird note: we DON'T assume the socket is open until it sends us this message, because
+		# the socket could close if the token was bad before anything happens, and that's not fun
+		print("Websocket at %s is fully operational, lastId: %d" % [wsUrl, response.data])
+		isOpen = true
+		lastId = response.data
+		emit_signal("ws_connected")
+	elif response.type == "userlistupdate":
+		emit_signal("ws_userlist", response, false)
+	elif response.type == "userlist":
+		emit_signal("ws_userlist", response, true)
+	elif response.type == "request":
+		emit_signal("ws_request", response)
+	elif response.type == "badtoken":
+		emit_signal("ws_badtoken", response.error)
+		Disconnect(true, response.error)
+	elif response.type == "unexpected":
+		emit_signal("ws_unexpected", response.error)
+		Disconnect(true, response.error)
 
-func Disconnect(force: bool = false):
+func Disconnect(force: bool = false, message: String = ""):
 	if looping || force: # This variable basically says the system is running
 		print("Forcing disconnect to ws %s" % wsUrl)
 		looping = false
@@ -73,6 +103,7 @@ func Disconnect(force: bool = false):
 		wsUrl = ""
 		isOpen = false
 		client.disconnect_from_host(1000, "Client forced disconnect?")
+		emit_signal("ws_fulldisconnect", message)
 	else:
 		print("Disconnect called, but no websocket seemingly running")
 
@@ -91,4 +122,4 @@ func _internal_connect():
 		var errmessage = "COULDN'T INITIALIZE WEBSOCKET TO %s: call returned %d" % [ wsUrl, err ]
 		printerr(errmessage)
 		emit_signal("ws_unhandled", errmessage)
-		Disconnect()
+		Disconnect(true)
