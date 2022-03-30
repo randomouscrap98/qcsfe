@@ -1,5 +1,6 @@
 extends Node
 
+const BYTIMEINTERVAL = 3
 const MINICONTENTFIELDS = "id,name,permissions,createDate,createUserId,contentType,parentId,literalType,meta,hash,deleted"
 
 var userAutoFields = {
@@ -43,9 +44,9 @@ func CreateByTimeRequest(date):
 	var utcOffset = OSUtilities.GetUtcOffset()
 	var baseUtc = OS.get_unix_time_from_datetime(dateStart) - utcOffset * 60 * 60
 	# Need to include the LAST part because they're RANGES
-	for i in range(0, 25):
+	for i in range(0, 25, BYTIMEINTERVAL):
 		var nowKey = "date%d" % i
-		var lastKey = "date%d" % (i - 1)
+		var lastKey = "date%d" % (i - BYTIMEINTERVAL)
 		var msgKey = TimeMessageKey(i)
 		var actKey = TimeActivityKey(i)
 		# Dates are reversed, so go to 24 hours from now, then start subtracting hours
@@ -64,7 +65,7 @@ func CreateByTimeRequest(date):
 				"fields" : "*",
 				"query" : "createDate >= @%s and createDate < @%s" % [ nowKey, lastKey ]
 			})
-			if i > 1:
+			if i > BYTIMEINTERVAL:
 				userRequest.query += " or "
 				contentRequest.query += " or "
 			userRequest.query += "id in @%s.createUserId or id in @%s.createUserId" % [ msgKey, actKey ]
@@ -94,7 +95,8 @@ func AutoLinkGeneric(content, link, linkFields, type):
 				if key in link:
 					c[linkFields[f]] = link[key]
 				else:
-					printerr("Couldn't find %s %d in result!" % [ type, key ])
+					printerr("Couldn't find %s %s in result!" % [ type, key ])
+					c[linkFields[f]] = { "id" : key }
 
 # Link users to standard user fields in given content, assume users is already id linked
 func AutoLinkUsers(content, users):
@@ -108,16 +110,20 @@ func AutoLinkByTimeRequest(data):
 	var users = IdDictionary(data.user)
 	var content = IdDictionary(data.content)
 	var result = { }
-	for i in range(1, 25):
+	for i in range(BYTIMEINTERVAL, 25, BYTIMEINTERVAL):
 		var msgKey = TimeMessageKey(i)
 		var actKey = TimeActivityKey(i)
-		if data[msgKey].size() == 0 && data[actKey].size() == 0: # && result.size() == 0:
-			continue
+		# Skip empty times
+		#if data[msgKey].size() == 0 && data[actKey].size() == 0: # && result.size() == 0:
+		#	continue
 		AutoLinkUsers(data[msgKey], users)
 		AutoLinkContent(data[msgKey], content)
 		AutoLinkUsers(data[actKey], users)
 		AutoLinkContent(data[actKey], content)
-		result["%d:00" % (24 - i)] = {
+		var timeKey = "%d:00" % (24 - i)
+		if BYTIMEINTERVAL > 1:
+			timeKey = "%s - %d:00" % [ timeKey, (24 - i + BYTIMEINTERVAL - 1) ]
+		result[timeKey] = {
 			"messages" : data[msgKey],
 			"activity" : data[actKey]
 		}

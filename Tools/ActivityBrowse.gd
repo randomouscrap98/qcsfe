@@ -6,6 +6,8 @@ onready var dateLabel : Node = $Header/HBoxContainer/DateRangeLabel
 onready var oldButton : Node = $Header/HBoxContainer/OlderButton
 onready var newButton : Node = $Header/HBoxContainer/NewerButton
 
+onready var hourlyActivity = preload("res://Fragments/HourlyActivity.tscn")
+
 var lastSendId : String = ""
 
 onready var loading  = preload("res://Fragments/ContainerLoading.tscn")
@@ -45,11 +47,19 @@ func _date_forward():
 func _request_get(response):
 	if response.id == lastSendId:
 		print("Got response, matched id %s, error: %s" % [ lastSendId, response.error ])
+		if response.error:
+			printerr("CAN'T CONTINUE, RESPONSE GOT ERROR")
+			return
 		var data = response.data.data
 		# print(JSON.print(data, " "))
 		var result = ApiUtilities.AutoLinkByTimeRequest(data)
+		NodeUtilities.ClearNode(activityList)
+		for t in result:
+			var actnode = hourlyActivity.instance()
+			actnode.SetData(t, result[t])
+			activityList.add_child(actnode)
 		# print(JSON.print(response.data.search.requests, " "))
-		print(JSON.print(result, " "))
+		# print(JSON.print(result, " "))
 	else:
 		printerr("Got response that wasn't ours: %s vs %s (ours first)" % [ lastSendId, response.id ])
 
