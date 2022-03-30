@@ -6,16 +6,22 @@ extends Node
 class_name WsWrapper
 
 const RECONNECTINTERVAL = 5.0
+const SENDINTERVAL = 0.1
+const ERRORINTERVAL = 1
 
 var wsUrl : String = ""
 var token : String = ""
 var lastId = 0
+var sendTimeout = 0
 
 var client
 
 var isOpen : bool = false
 var looping : bool = false
 var reconnectTimer = 0
+var sendCounter : int = 0
+
+var pendingSends = []
 
 # Just informational signals, use for state tracking for like a connection identifier.
 # Also can check "isOpen", should match the state from the signals...
@@ -50,15 +56,27 @@ func _exit_tree():
 	Disconnect(true)
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(_delta):
+func _process(delta):
 	client.poll()
 	if looping && reconnectTimer > 0:
-		reconnectTimer = reconnectTimer - _delta
+		reconnectTimer = reconnectTimer - delta
 		if reconnectTimer <= 0:
 			_internal_connect()
+	sendTimeout = max(0, sendTimeout - delta)
+	if isOpen && sendTimeout <= 0 && pendingSends.size() > 0:
+		client.get_peer(1).set_write_mode(WebSocketPeer.WRITE_MODE_TEXT)
+		var err = client.get_peer(1).put_packet(pendingSends[0])
+		if err != OK:
+			printerr("Couldn't send websocket request to %s: error code %d" % [ wsUrl, err ])
+			sendTimeout += ERRORINTERVAL
+		else:
+			print("Sending %d bytes on websocket %s" % [ pendingSends[0].size(), wsUrl])
+			pendingSends.pop_front()
+			sendTimeout += SENDINTERVAL
+
 
 func _ws_closed(_clean = false):
-	printerr("Websocket to %s closed, clean: %d" % [ wsUrl, _clean ])
+	printerr("Websocket to %s closed, clean: %s" % [ wsUrl, _clean ])
 	isOpen = false
 	emit_signal("ws_disconnected")
 	if looping:
@@ -93,10 +111,15 @@ func _ws_message():
 	elif response.type == "unexpected":
 		emit_signal("ws_unexpected", response.error)
 		Disconnect(true, response.error)
+	else:
+		printerr("Unknown ws response type: %s" % response.type)
+
 
 func Disconnect(force: bool = false, message: String = ""):
 	if looping || force: # This variable basically says the system is running
 		print("Forcing disconnect to ws %s" % wsUrl)
+		if message != "":
+			printerr("DISCONNECT MESSAGE: %s" % message)
 		looping = false
 		reconnectTimer = 0
 		token = ""
@@ -114,6 +137,16 @@ func Connect(url, userToken): # , timeout = 0.00001):
 	looping = true
 	lastId = 0
 	_internal_connect()
+
+func Send(data, id : String = ""):
+	sendCounter += 1
+	if id == "":
+		id = "GODOT_SEND_%d" % sendCounter
+	data.id = id
+	var sData = JSON.print(data)
+	pendingSends.append(sData.to_utf8())
+	# client.get_peer(1).put_packet(sData.to_utf8())
+	return id
 
 func _internal_connect():
 	print("Connecting to websocket %s" % wsUrl)

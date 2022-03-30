@@ -26,14 +26,14 @@ size_flags_horizontal = 3
 text = "Date through Date"
 clip_text = true
 
-[node name="OlderButton" type="Button" parent="Header/HBoxContainer"]
+[node name="NewerButton" type="Button" parent="Header/HBoxContainer"]
 margin_left = 442.0
 margin_right = 462.0
 margin_bottom = 20.0
 disabled = true
 text = "<"
 
-[node name="NewerButton" type="Button" parent="Header/HBoxContainer"]
+[node name="OlderButton" type="Button" parent="Header/HBoxContainer"]
 margin_left = 466.0
 margin_right = 486.0
 margin_bottom = 20.0
@@ -47,5 +47,5 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 
 [node name="ActivityList" type="VBoxContainer" parent="ScrollContainer"]
-margin_bottom = 466.0
-size_flags_vertical = 3
+margin_right = 500.0
+size_flags_horizontal = 3

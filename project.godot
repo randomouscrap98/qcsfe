@@ -30,6 +30,7 @@ config/icon="res://icon.png"
 ApiUtilities="*res://Utilities/ApiUtilities.gd"
 OSUtilities="*res://Utilities/OSUtilities.gd"
 ApiInstance="*res://System/ApiInstance.gd"
+NodeUtilities="*res://Utilities/NodeUtilities.gd"
 
 [display]
 

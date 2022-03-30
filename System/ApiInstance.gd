@@ -7,7 +7,7 @@ var userToken : String = ""
 var queuedRequests = []
 var currentRequest = null
 var request
-var websocket
+var websocket : WsWrapper
 
 signal login_success()
 signal login_error(message)
