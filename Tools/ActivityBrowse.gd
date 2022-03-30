@@ -1,14 +1,11 @@
 extends VBoxContainer
 
-const DAYSECS = 60 * 60 * 24
 var currentDate : Dictionary
 onready var activityList : Node = $ScrollContainer/ActivityList
 onready var dateLabel : Node = $Header/HBoxContainer/DateRangeLabel
 onready var oldButton : Node = $Header/HBoxContainer/OlderButton
 onready var newButton : Node = $Header/HBoxContainer/NewerButton
 
-# var rid : String
-#var reqcount : int = 0
 var lastSendId : String = ""
 
 onready var loading  = preload("res://Fragments/ContainerLoading.tscn")
@@ -21,10 +18,6 @@ func _ready():
 	LoadDate()
 	pass # Replace with function body.
 
-# func next_request_id():
-# 	reqcount += 1
-# 	rid = "%d.activitybrowse.%d" % [ get_instance_id(), reqcount ]
-# 	return rid
 
 # This function only looks at the year, month, and day part of the date object. It is assumed
 # the date is based on local time, and will be converted to UTC for the server
@@ -36,19 +29,12 @@ func LoadDate(date = OS.get_datetime()):
 	currentDate["hour"] = 12 # For safety, put it in the MIDDLE of the day
 	var today = OS.get_datetime()
 	newButton.disabled = today["year"] == date["year"] && today["month"] == date["month"] && today["day"] == date["day"]
-	lastSendId = ApiInstance.websocket.Send({
-		"type" : "request",
-		"data" : {
-			"requests" : [ {
-				"type" : "user",
-				"fields" : "*"
-			}]
-		}
-	})
+	lastSendId = ApiInstance.websocket.Send(ApiUtilities.CreateByTimeRequest(date))
+
 
 func LoadDateFromOffset(days):
 	var unixTime = OS.get_unix_time_from_datetime(currentDate)
-	var modifiedTime = unixTime + (days * DAYSECS)
+	var modifiedTime = unixTime + (days * OSUtilities.DAYSECS)
 	LoadDate(OS.get_datetime_from_unix_time(modifiedTime))
 	
 func _date_back():

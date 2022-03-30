@@ -145,7 +145,6 @@ func Send(data, id : String = ""):
 	data.id = id
 	var sData = JSON.print(data)
 	pendingSends.append(sData.to_utf8())
-	# client.get_peer(1).put_packet(sData.to_utf8())
 	return id
 
 func _internal_connect():

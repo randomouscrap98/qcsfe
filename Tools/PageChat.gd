@@ -1,9 +1,5 @@
 extends VBoxContainer
 
-
-# Declare member variables here. Examples:
-# var a = 2
-# var b = "text"
 onready var toggleExtra = $Header/TitlePanel/HBoxContainer/ToggleExtra #$VBoxContainer/TitlePanel/HBoxContainer/ToggleExtra
 onready var extraPanel = $Header/ExtraPanel
 

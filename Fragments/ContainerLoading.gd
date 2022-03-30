@@ -1,12 +1,9 @@
 extends HBoxContainer
 
-# Declare member variables here. Examples:
-# var a = 2
-# var b = "text"
 var totalTime = 0
 var frames = [ "-", "\\", "|", "/" ]
 var frameCount = frames.size()
-onready var loadingLabel = $Label
+onready var loadingLabel = $MarginContainer/Label
 
 # Called when the node enters the scene tree for the first time.
 func _ready():

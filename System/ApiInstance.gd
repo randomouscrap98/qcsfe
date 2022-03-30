@@ -1,6 +1,5 @@
 extends Node
 
-
 var apiUrl : String = ""
 var userToken : String = ""
 

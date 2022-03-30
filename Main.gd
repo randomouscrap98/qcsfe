@@ -5,7 +5,7 @@ onready var homepage = preload("res://Tools/Homepage.tscn")
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	ApiInstance.connect("login_success", self, "_login_success")
-	pass # Replace with function body.
+	print("UTC offset: %d" % OSUtilities.GetUtcOffset())
 
 func _login_success():#url: String, token: String):
 	# print("Login successful, using URL %s", url)
