@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+   <title>QCS</title>
+
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width"><!--,maximum-scale=1">-->
+   <meta name="rating" content="general">
+   <meta name="description" content="A website for certain people">
+   <meta property="og:site_name" content="QCS">
+   <meta name="theme-color" content="#03a1fc">
+
+   <!--<link data-favicon rel="shortcut icon" href="favicon.ico">-->
+   <script src="https://oboy.smilebasicsource.com/api/run/api.js?v=123"></script>
+
+   <script type="module" src="modules/1.0.0/main-init.js></script>
+   <script defer src="alpine3-min.js?v=123"></script>
+   <!--
+   <link rel="stylesheet" href="variables.css?v=123" />
+   <link rel="stylesheet" href="main.css?v=123" />
+   -->
+
+</head>
+
+<body>
+
+
+   <template id="templates">
+
+      <div id="message_fragment" x-data="message_fragment">
+         <div x-text="message.text"></div>
+         <button @click="$dispatch('message_edit',{id:message.id})">Edit</button>
+      </div>
+
+      <div id="message_block" x-data="message_block">
+         <div class="left-pane">
+            <!-- avatar -->
+         </div>
+         <div class="right-pane">
+            <div class="user-info">
+               <span x-text="root_message.createUser.username"></span>
+            </div>
+            <div class="message-fragments">
+               <template x-for="msg in messages" t-fill="message_fragment">
+               </template>
+            </div>
+         </div>
+      </div>
+
+   </template>
+
+</body>
+
+</html>
