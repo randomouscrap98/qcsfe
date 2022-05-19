@@ -9,7 +9,10 @@ export function getTemplatesElement()
 
 export function cloneTemplate(name) 
 {
-   return getTemplatesElement().content.getElementById(name).cloneNode(true);
+   var template = getTemplatesElement().content.getElementById(name).cloneNode(true);
+   template.removeAttribute("id");
+   template.setAttribute("data-template", name);
+   return template;
 }
 
 export function composeTemplates()
@@ -25,12 +28,12 @@ export function composeTemplates()
          break;
 
       replaceElements.forEach(x => {
-         var replacement = templates.content.getElementById(x.getAttribute(replaceAttribute));
+         var replacement = cloneTemplate(x.getAttribute(replaceAttribute));
          x.parentNode.replaceChild(replacement, x);
       });
 
       fillElements.forEach(x => {
-         var filler = templates.content.getElementById(x.getAttribute(fillAttribute));
+         var filler = cloneTemplate(x.getAttribute(fillAttribute));
          if(x.tagName === "TEMPLATE")
             x.content.appendChild(filler);
          else

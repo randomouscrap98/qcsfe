@@ -15,7 +15,7 @@
    <!--<link data-favicon rel="shortcut icon" href="favicon.ico">-->
    <script src="https://oboy.smilebasicsource.com/api/run/api.js?v=123"></script>
 
-   <script type="module" src="modules/1.0.0/main-init.js></script>
+   <script type="module" src="modules/1.0.0/main-init.js"></script>
    <script defer src="alpine3-min.js?v=123"></script>
    <!--
    <link rel="stylesheet" href="variables.css?v=123" />
@@ -26,26 +26,83 @@
 
 <body>
 
+   <main>
 
+   </main>
+
+   <!--
+      So, alpine doesn't work nicely with multi-level composing. To be fair, vue doesn't work very well there either,
+      what with props needing to be passed all over and vue having special functionality specifically for passing properties
+      down deep, and the way reactivity works and all that. It's a fundamentally flawed system, and maybe we can sidestep it?
+
+      So I can compose templates using my old fashioned method of creating id'd elements inside a big template node, 
+      then pre-composing (copying) all the fillers (which would be custom tags in other frameworks). This way, I only have
+      to write the components once, but then they're just copied all over for use in alpine, so a "big" piece will be
+      pre-composed to be... well, big.
+
+      With the big templates, I can then write the alpine data functionality for each piece that I plan to use 
+      individually. So, I don't need one for message_fragment just yet because I never plan to use message_fragment
+      by itself. I MIGHT use message_block, but not yet, so it doesn't need it.
+
+      But, there could be a message list which simply represents an ordered list of message blocks. That one will
+      have the data... or hm. Should I instead compose things top-down? Think in terms of big widgets you can immediately use
+      for things?
+
+      For instance, yes you could make a message list, but isn't it more immediately useful to have a message scroller which
+      can also manage its own set of messages, loading older etc? Also, when will you ever want a message scroller without SOME 
+      way to get at the page data itself, so maybe wrap the WHOLE thing up? Page display, scroller, etc. And then if you
+      need to pull the individual parts out... hm.
+
+      So the fake scroller may be a useful element by itself, that's the problem. And it's something I could design with
+      alpine... well maybe it could just be a set of common functions, if I need it somewhere else. Fake scrolling is
+      only useful for realtime data anyway, and that's specifically chat. The rest can be real scrollers.
+
+      So my first task is to create basically the whole thing that goes inside a chat tab. Some kind of header that
+      can expand to show the page data, and the scroller underneath. it'll be a BIG component with a single x-data. 
+      Loading it will what... just send the id of the page? Sometimes you already HAVE the data though... or do you?
+      You don't ever get the full page data on new message from the live system, so... SHOULD this system be entirely
+      self contained? Less efficient, more easy? Other people are making optimized frontends, maybe I should
+      make the easy frontend...
+   -->
    <template id="templates">
 
-      <div id="message_fragment" x-data="message_fragment">
-         <div x-text="message.text"></div>
-         <button @click="$dispatch('message_edit',{id:message.id})">Edit</button>
+      <!-- NO x-data on templates? Just always attach it later
+           based on context -->
+      <div id="message_fragment">
+         <div class="fragment-info">
+            <time :datetime="message.createDate"></time>
+         </div>
+         <div x-text="message.text" class="markup"></div>
+         <button @click="$dispatch('message_edit',{id:message.id})" class="edit">Edit</button>
       </div>
 
-      <div id="message_block" x-data="message_block">
-         <div class="left-pane">
-            <!-- avatar -->
+      <div id="message_block">
+         <div class="message-left">
+            <img class="avatar" :src="root_message.avatarLink">
          </div>
-         <div class="right-pane">
+         <div class="message-right">
             <div class="user-info">
                <span x-text="root_message.createUser.username"></span>
             </div>
             <div class="message-fragments">
-               <template x-for="msg in messages" t-fill="message_fragment">
+               <template x-for="message in messages" t-fill="message_fragment">
                </template>
             </div>
+         </div>
+      </div>
+
+      <div id="message_scroller">
+         <div class="scroll-container">
+            <!-- There may be load controls or something in here, but dragging to load more is 
+                 also fully possible now -->
+            <!-- This one will be offset inside the other one -->
+            <div class="message-list">
+               <template x-for="message_block in message_blocks" t-fill="message_block">
+               </template>
+            </div>
+         </div>
+         <div x-ref="scrollbar" class="scrollbar">
+            <div x-ref="scrollnub" class="scrollnub"></div>
          </div>
       </div>
 
